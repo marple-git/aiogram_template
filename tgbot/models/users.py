@@ -54,14 +54,3 @@ class User(Base):
 
     def __repr__(self):
         return f'User (ID: {self.telegram_id} - {self.first_name} {self.last_name})'
-
-
-if __name__ == '__main__':
-    import sqlalchemy.exc
-
-
-    async def test():
-        config = load_config()
-        session = await create_db_session(config)
-
-    asyncio.run(test())
