@@ -12,7 +12,7 @@ from tgbot.middlewares.db import DbMiddleware
 from tgbot.filters.filter_log import setup_logger
 from tgbot.services.database import create_db_session
 
-setup_logger(ignored=["aiogram.bot.api"])
+setup_logger(ignored=["aiogram.bot.api", "aiogram.dispatcher.dispatcher"])
 
 
 def register_all_middlewares(dp):
@@ -29,13 +29,9 @@ def register_all_handlers(dp):
 
 async def main():
     logger.info("Bot started!")
-    config = load_config(".env")
+    config = load_config(".env.dist")
 
-    if config.tg_bot.use_redis:
-        storage = RedisStorage()
-    else:
-        storage = MemoryStorage()
-
+    storage = RedisStorage() if config.tg_bot.use_redis else MemoryStorage()
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp = Dispatcher(bot, storage=storage)
 

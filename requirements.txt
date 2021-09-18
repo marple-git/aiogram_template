@@ -1,5 +1,6 @@
 aiogram~=2.12.1
-aioredis
+aioredis<2
 environs~=8.0.0
 loguru~=0.5.3
 SQLAlchemy~=1.4.19
+asyncpg

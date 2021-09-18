@@ -1,10 +1,11 @@
 from aiogram import Dispatcher
 from aiogram.types import Message
-import time
+from tgbot.models.users import User
 
 
-async def start(m: Message):
-    await m.answer('Привет, товарищ!')
+async def start(m: Message, user: User):
+    await m.answer(f'Приветствую, {m.from_user.first_name}.\n'
+                   f'Ваш баланс: {user.balance}P')
 
 
 def register(dp: Dispatcher):
