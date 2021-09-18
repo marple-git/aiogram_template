@@ -13,3 +13,27 @@ services:
     restart: always
     env_file:
       - ".env"
+    networks:
+      - botnet
+    depends_on:
+      - db
+
+  db:
+      image: sameersbn/postgresql:10-2
+      container_name: database
+      restart: always
+      env_file:
+        - ".env"
+      environment:
+        POSTGRES_PASSWORD: $PG_PASSWORD
+        POSTGRES_DB: $DB_NAME
+      ports:
+        - 5432:5432
+      networks:
+        - botnet
+      volumes:
+        - ./postgresql:/var/lib/postgresql
+
+networks:
+  botnet:
+    driver: bridge

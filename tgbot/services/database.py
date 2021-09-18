@@ -13,9 +13,6 @@ async def create_db_session(config: Config):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # expire_on_commit=False will prevent attributes from being expired
-    # after commit.
-    async_session = sessionmaker(
+    return sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
-    )
-    return async_session
+    )()

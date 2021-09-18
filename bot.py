@@ -31,11 +31,7 @@ async def main():
     logger.info("Bot started!")
     config = load_config(".env")
 
-    if config.tg_bot.use_redis:
-        storage = RedisStorage()
-    else:
-        storage = MemoryStorage()
-
+    storage = RedisStorage() if config.tg_bot.use_redis else MemoryStorage()
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp = Dispatcher(bot, storage=storage)
 
