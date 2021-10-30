@@ -10,6 +10,7 @@ from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.start import register
 from tgbot.middlewares.db import DbMiddleware
 from tgbot.filters.filter_log import setup_logger
+from tgbot.models.users import User
 from tgbot.services.database import create_db_session
 
 setup_logger(ignored=["aiogram.bot.api"])
@@ -37,7 +38,6 @@ async def main():
 
     bot['config'] = config
     bot['db'] = await create_db_session(config)
-
     register_all_middlewares(dp)
     register_all_filters(dp)
     register_all_handlers(dp)

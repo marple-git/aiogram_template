@@ -1,40 +1,38 @@
-import asyncio
-from sqlalchemy import Column, BigInteger, insert, String, update
+from sqlalchemy import Column, BigInteger, insert, update, String
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
-from tgbot.config import load_config
-from tgbot.services.database import create_db_session
+
 from tgbot.services.db_base import Base
 
 
 class User(Base):
+    def __init__(self, session: AsyncSession):
+        self.session: AsyncSession = session
+
     __tablename__ = "users"
     chat_id = Column(BigInteger, primary_key=True)
+    description = Column(String)
 
-    @classmethod
-    async def get_user(cls, session: AsyncSession, telegram_id: int) -> 'User':
-        async with session.begin():
-            sql = select(cls).where(cls.chat_id == telegram_id)
-            request = await session.execute(sql)
-            user: cls = request.scalar()
+    async def get_user(self, telegram_id: int) -> 'User':
+        async with self.session.begin():
+            sql = select(User).where(User.chat_id == telegram_id)
+            request = await self.session.execute(sql)
+            user: User = request.scalar()
         return user
 
-    @classmethod
-    async def add_user(cls,
-                       session: AsyncSession,
+    async def add_user(self,
                        chat_id: int
                        ) -> 'User':
-        async with session.begin():
-            sql = insert(cls).values(chat_id=chat_id).returning('*')
-            result = await session.execute(sql)
+        async with self.session.begin():
+            sql = insert(User).values(chat_id=chat_id).returning('*')
+            result = await self.session.execute(sql)
             return result.first()
 
-    async def update_user(self, session: AsyncSession, updated_fields: dict) -> 'User':
-        async with session.begin():
-            sql = update(User).where(User.chat_id == self.chat_id).values(**updated_fields)
-            result = await session.execute(sql)
+    async def update_user(self, chat_id: int, updated_fields: dict) -> 'User':
+        async with self.session.begin():
+            sql = update(User).where(User.chat_id == chat_id).values(**updated_fields)
+            result = await self.session.execute(sql)
             return result
 
     def __repr__(self):
-        return f'User (ID: {self.chat_id} - {self.first_name} {self.last_name})'
+        return f'User (ID: {self.chat_id})'
