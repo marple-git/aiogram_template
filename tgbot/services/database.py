@@ -15,4 +15,4 @@ async def create_db_session(config: Config):
 
     return sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
-    )()
+    )

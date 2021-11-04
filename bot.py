@@ -37,7 +37,7 @@ async def main():
     dp = Dispatcher(bot, storage=storage)
 
     bot['config'] = config
-    bot['db'] = await create_db_session(config)
+    bot['session_maker'] = await create_db_session(config)
     register_all_middlewares(dp)
     register_all_filters(dp)
     register_all_handlers(dp)
