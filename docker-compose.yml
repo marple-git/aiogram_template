@@ -4,6 +4,7 @@ services:
   bot:
     image: "${BOT_IMAGE_NAME:-tg_bot-image}"
     container_name: "${BOT_CONTAINER_NAME:-tg_bot-container}"
+    stop_signal: SIGINT
     build:
       context: .
     working_dir: "/usr/src/app/${BOT_NAME:-tg_bot}"
@@ -12,28 +13,60 @@ services:
     command: python3 -m bot
     restart: always
     env_file:
-      - ".env"
-    networks:
-      - botnet
+      - ".env.dist"
     depends_on:
-      - db
+      - grafana
+      - influxdb
 
-  db:
-      image: sameersbn/postgresql:10-2
-      container_name: database
-      restart: always
-      env_file:
-        - ".env"
-      environment:
-        POSTGRES_PASSWORD: $PG_PASSWORD
-        POSTGRES_DB: $DB_NAME
-      ports:
-        - 5432:5432
-      networks:
-        - botnet
-      volumes:
-        - ./postgresql:/var/lib/postgresql
+    networks:
+      - tg_bot
+
+  influxdb:
+    image: influxdb:1.8-alpine
+    container_name: "test-stats-influxdb"
+    restart: always
+    volumes:
+        - "../influxdb:/var/lib/influxdb"
+    env_file:
+      - '.env.dist'
+
+    networks:
+      - tg_bot
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: "test-stats-grafana"
+    environment:
+        - GF_DATE_FORMATS_DEFAULT_TIMEZONE=browser
+    ports:
+      - "3000:3000"
+    networks:
+      - tg_bot
+
+  pg_database:
+    container_name: postgres
+    image: postgres:13-alpine
+    expose:
+      - 5432
+    restart: always
+    volumes:
+      - "../pgdata:/var/lib/postgresql/data"
+    command: "postgres -c max_connections=150
+              -c shared_buffers=512MB -c effective_cache_size=1536MB
+              -c maintenance_work_mem=128MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB
+              -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200
+              -c work_mem=3495kB -c min_wal_size=1GB -c max_wal_size=4GB -c max_worker_processes=2
+              -c max_parallel_workers_per_gather=1 -c max_parallel_workers=2 -c max_parallel_maintenance_workers=1"
+    env_file:
+      - '.env.dist'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    networks:
+      - tg_bot
 
 networks:
-  botnet:
+  tg_bot:
     driver: bridge
