@@ -13,6 +13,6 @@ class AdminFilter(BoundFilter):
 
     async def check(self, obj):
         if self.is_admin is None:
-            return True
+            return False
         config: Config = obj.bot.get('config')
-        return str(obj.from_user.id) in config.tg_bot.admin_ids
+        return (obj.from_user.id in config.tg_bot.admin_ids) == self.is_admin
