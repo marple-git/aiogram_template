@@ -13,7 +13,7 @@ services:
     command: python3 -m bot
     restart: always
     env_file:
-      - ".env.dist"
+      - ".env"
     depends_on:
       - pg_database
     networks:
@@ -34,7 +34,7 @@ services:
               -c work_mem=3495kB -c min_wal_size=1GB -c max_wal_size=4GB -c max_worker_processes=2
               -c max_parallel_workers_per_gather=1 -c max_parallel_workers=2 -c max_parallel_maintenance_workers=1"
     env_file:
-      - '.env.dist'
+      - '.env'
     logging:
       driver: "json-file"
       options:
